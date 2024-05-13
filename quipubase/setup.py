@@ -1,6 +1,6 @@
 # type: ignore
 from Cython.Build import cythonize
-from setuptools import Extension, setup
+from setuptools import Extension, setup  # pylint: disable=E0401
 
 ext_modules = [
     Extension(

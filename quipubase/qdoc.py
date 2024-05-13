@@ -2,19 +2,21 @@ from __future__ import annotations
 
 import os
 from abc import ABC, abstractmethod
-from typing import Any, ClassVar, List, Literal, Optional, TypeVar
+from typing import Any, ClassVar, Dict, List, Optional, TypeVar
 from uuid import uuid4
 
 import numpy as np
+from fastapi import APIRouter, Body, HTTPException, Path, Query, status
 from numpy.typing import NDArray
 from pydantic import BaseModel, Field
-from typing_extensions import ParamSpec, Self, TypedDict
+from typing_extensions import Self
 
+from .qconst import DEF_EXAMPLES, EXAMPLES, JSON_SCHEMA_DESCRIPTION, Action
+from .qschemas import JsonSchema, create_class
 from .quipubase import Quipu  # pylint: disable=E0611
 from .qutils import handle
 
-A = TypeVar("A")
-P = ParamSpec("P")
+T = TypeVar("T", bound="QDocument")
 
 
 class _Base(BaseModel):
@@ -31,26 +33,17 @@ class Status(_Base):
     key: Optional[str] = Field(default=None)
 
 
-class Property(TypedDict):
-    type: str
-    description: Optional[str]
-    default: Optional[Any]
-    enum: Optional[List[str]]
-    items: Optional[Property]
-    properties: Optional[Property]
-    required: Optional[List[str]]
-    additionalProperties: Optional[bool]
-
-
-class Function(TypedDict):
-    name: str
-    type: Literal["function"]
-    description: str
-    arguments: Property
-    required: Optional[List[str]]
-
-
-T = TypeVar("T", bound="QDocument")
+class TypeDef(BaseModel):
+    data: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="The data to be stored if the action is `putDoc` or `mergeDoc`",
+        examples=EXAMPLES,
+    )
+    definition: JsonSchema = Field(
+        ...,
+        description=JSON_SCHEMA_DESCRIPTION,
+        examples=DEF_EXAMPLES,
+    )
 
 
 class QDocument(_Base):
@@ -120,22 +113,6 @@ class QDocument(_Base):
         return cls._db.exists(key=key)
 
 
-class Tool(_Base, ABC):
-    @classmethod
-    def definition(cls):
-        return Function(
-            name=cls.__name__,
-            type="function",
-            description=cls.__doc__ or "[No description provided]",
-            arguments=cls.model_json_schema().get("properties", {}),
-            required=list(cls.model_json_schema().get("required", [])),
-        )
-
-    @abstractmethod
-    async def run(self, **kwargs: Any) -> Any:
-        pass
-
-
 class Embedding(QDocument, ABC):
     @abstractmethod
     async def embed(self, *, content: str) -> NDArray[Any]:
@@ -152,3 +129,67 @@ class Embedding(QDocument, ABC):
     @abstractmethod
     async def upsert(self, *, content: str | list[str]) -> None:
         pass
+
+
+app = APIRouter(tags=["document"], prefix="/document")
+
+
+@app.post("/{namespace}")
+def _(
+    namespace: str = Path(description="The namespace of the document"),
+    action: Action = Query(..., description="The method to be executed"),
+    key: Optional[str] = Query(
+        None, description="The unique identifier of the document"
+    ),
+    limit: Optional[int] = Query(
+        None, description="The maximum number of documents to return"
+    ),
+    offset: Optional[int] = Query(None, description="The number of documents to skip"),
+    definition: TypeDef = Body(...),
+):
+
+    klass = create_class(schema=definition.definition, base=QDocument, action=action)
+    if action in ("putDoc", "mergeDoc", "findDocs"):
+        assert (
+            definition.data is not None
+        ), f"Data must be provided for action `{action}`"
+        if action == "putDoc":
+            doc = klass(namespace=namespace, **definition.data)  # type: ignore
+            return doc.put_doc()
+        if action == "mergeDoc":
+            doc = klass(namespace=namespace, **definition.data)  # type: ignore
+            return doc.merge_doc()
+        if action == "findDocs":
+            return klass.find_docs(
+                limit=limit or 1000,
+                offset=offset or 0,
+                namespace=namespace,
+                **definition.data,
+            )
+    if action in ("getDoc", "deleteDoc", "scanDocs", "countDocs", "existsDoc"):
+        assert key is not None, f"Key must be provided for action `{action}`"
+        if definition.data is not None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Data must not be provided for this action",
+            )
+        if action == "getDoc":
+            return klass.get_doc(key=key)
+        if action == "deleteDoc":
+            return klass.delete_doc(key=key)
+        if action == "scanDocs":
+            return klass.scan_docs(limit=limit or 1000, offset=offset or 0)
+        if action == "countDocs":
+            return klass.count()
+        if action == "existsDoc":
+            return klass.exists(key=key)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid action `{action}`",
+            )
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid action `{action}`",
+        )

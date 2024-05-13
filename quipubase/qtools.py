@@ -1,20 +1,36 @@
 import asyncio
+import json
+import os
 import re
+from abc import ABC, abstractmethod
 from typing import Any
 
 from bs4 import BeautifulSoup  # pylint: disable=E0401
-from fastapi import HTTPException
-from pydantic import Field
+from fastapi import APIRouter, Body, HTTPException
+from openai import AsyncOpenAI
+from pydantic import BaseModel, Field
 from pyppeteer import browser, launch  # type: ignore
 
-from .qdoc import QDocument, Tool
+from .qproxy import QProxy
+from .qschemas import create_class  # type: ignore
+from .qschemas import JsonSchema
 from .qutils import get_logger
 
 chrome: browser.Browser = None  # type: ignore
 logger = get_logger(__name__)
 
 
-class GoogleResult(QDocument):
+class Tool(BaseModel, ABC):
+    @classmethod
+    def definition(cls):
+        return
+
+    @abstractmethod
+    async def run(self, **kwargs: Any) -> Any:
+        raise NotImplementedError
+
+
+class GoogleResult(BaseModel):
     """A single result from a Google search."""
 
     url: str = Field(..., description="The URL of the search result.")
@@ -84,3 +100,66 @@ class BrowsingTool(Tool):
 
     async def run(self, **kwargs: Any) -> list[GoogleResult]:
         return [i async for i in self._browse(**kwargs)]
+
+
+class SyntheticDataTool(Tool, QProxy[AsyncOpenAI]):
+    """Generates synthetic data based on a given schema."""
+
+    json_schema: JsonSchema = Field(
+        ..., description="The JSON schema of the data to generate."
+    )
+    n_of_samples: int = Field(
+        default=10, description="The number of samples to generate."
+    )
+    instruction: str = Field(
+        default="Generate synthetic data based on the given schema.",
+        description="The instruction to be passed to the model.",
+    )
+
+    async def run(self, **kwargs: Any):
+        n = self.n_of_samples
+        model = create_class(
+            schema=self.json_schema, base=SyntheticDataTool, action=None
+        )
+        PROMPT = f"""You are a synthetic data generator, generate exactly {n} samples according to the following schema: {model.model_json_schema()}. Output them as a json object in a the following format:
+		{{"data": [*samples]}}
+		The output must be valid `json` with no backticks neither additional or prior content or advicce.
+		"""
+        response = await self.__load__().chat.completions.create(
+            messages=[
+                {"role": "system", "content": PROMPT},
+                {"role": "user", "content": self.instruction},
+            ],
+            model="llama3-8B-8192",
+            max_tokens=8192,
+            functions=[self.json_schema],  # type: ignore
+        )
+        call = response.choices[0].message.function_call
+        content = response.choices[0].message.content
+        if not call and not content:
+            raise HTTPException(status_code=500, detail="No response from the model.")
+        if call:
+            arguments = json.loads(call.arguments)["data"]
+        elif content:
+            arguments = json.loads(content)["data"]
+        else:
+            raise HTTPException(status_code=500, detail="No response from the model.")
+        return [
+            model.model_validate(s).model_dump_json() for s in arguments  # type: ignore
+        ]
+
+    def __load__(self):
+        return AsyncOpenAI(base_url=os.environ["OPENAI_BASE_URL"])
+
+
+app = APIRouter(tags=["tool"], prefix="/tools")
+
+
+@app.post("/search")
+async def search(tool: BrowsingTool = Body(...)):
+    return await tool.run()
+
+
+@app.post("/synthetic")
+async def synthetic(tool: SyntheticDataTool = Body(...)):
+    return await tool.run()

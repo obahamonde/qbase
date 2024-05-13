@@ -149,7 +149,7 @@ cdef class Quipu:
                     it.Next()
                     continue
                 if keys_only:
-                    results.append((<bytes>it.key().data())[:it.key().size()]).decode()
+                    results.append((<bytes>it.key().data())[:it.key().size()])
                 else:
                     results.append(orjson.loads((<bytes>it.value().data())[:it.value().size()]))
                 it.Next()

@@ -26,3 +26,4 @@ dist/
 db/
 nohup.out
 *.lock
+.pytest_cache/

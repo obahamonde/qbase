@@ -2496,7 +2496,6 @@ static const char __pyx_k_limit[] = "limit";
 static const char __pyx_k_loads[] = "loads";
 static const char __pyx_k_mutex[] = "mutex";
 static const char __pyx_k_value[] = "value";
-static const char __pyx_k_decode[] = "decode";
 static const char __pyx_k_delete[] = "delete";
 static const char __pyx_k_enable[] = "enable";
 static const char __pyx_k_encode[] = "encode";
@@ -2654,7 +2653,6 @@ typedef struct {
   PyObject *__pyx_n_s_count;
   PyObject *__pyx_n_s_db_path;
   PyObject *__pyx_kp_s_db_path_must_be_provided;
-  PyObject *__pyx_n_s_decode;
   PyObject *__pyx_n_s_delete;
   PyObject *__pyx_n_s_delete_doc;
   PyObject *__pyx_kp_u_disable;
@@ -2824,7 +2822,6 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_n_s_count);
   Py_CLEAR(clear_module_state->__pyx_n_s_db_path);
   Py_CLEAR(clear_module_state->__pyx_kp_s_db_path_must_be_provided);
-  Py_CLEAR(clear_module_state->__pyx_n_s_decode);
   Py_CLEAR(clear_module_state->__pyx_n_s_delete);
   Py_CLEAR(clear_module_state->__pyx_n_s_delete_doc);
   Py_CLEAR(clear_module_state->__pyx_kp_u_disable);
@@ -2972,7 +2969,6 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_n_s_count);
   Py_VISIT(traverse_module_state->__pyx_n_s_db_path);
   Py_VISIT(traverse_module_state->__pyx_kp_s_db_path_must_be_provided);
-  Py_VISIT(traverse_module_state->__pyx_n_s_decode);
   Py_VISIT(traverse_module_state->__pyx_n_s_delete);
   Py_VISIT(traverse_module_state->__pyx_n_s_delete_doc);
   Py_VISIT(traverse_module_state->__pyx_kp_u_disable);
@@ -3136,7 +3132,6 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_n_s_count __pyx_mstate_global->__pyx_n_s_count
 #define __pyx_n_s_db_path __pyx_mstate_global->__pyx_n_s_db_path
 #define __pyx_kp_s_db_path_must_be_provided __pyx_mstate_global->__pyx_kp_s_db_path_must_be_provided
-#define __pyx_n_s_decode __pyx_mstate_global->__pyx_n_s_decode
 #define __pyx_n_s_delete __pyx_mstate_global->__pyx_n_s_delete
 #define __pyx_n_s_delete_doc __pyx_mstate_global->__pyx_n_s_delete_doc
 #define __pyx_kp_u_disable __pyx_mstate_global->__pyx_kp_u_disable
@@ -6504,10 +6499,10 @@ static PyObject *__pyx_pf_9quipubase_5Quipu_20scan_docs(struct __pyx_obj_9quipub
   int __pyx_t_3;
   Py_ssize_t __pyx_t_4;
   PyObject *__pyx_t_5 = NULL;
-  PyObject *__pyx_t_6 = NULL;
-  int __pyx_t_7;
-  int __pyx_t_8;
-  PyObject *__pyx_t_9 = NULL;
+  int __pyx_t_6;
+  PyObject *__pyx_t_7 = NULL;
+  PyObject *__pyx_t_8 = NULL;
+  int __pyx_t_9;
   PyObject *__pyx_t_10 = NULL;
   PyObject *__pyx_t_11 = NULL;
   PyObject *__pyx_t_12 = NULL;
@@ -6611,7 +6606,7 @@ static PyObject *__pyx_pf_9quipubase_5Quipu_20scan_docs(struct __pyx_obj_9quipub
  *                     it.Next()
  *                     continue             # <<<<<<<<<<<<<<
  *                 if keys_only:
- *                     results.append((<bytes>it.key().data())[:it.key().size()]).decode()
+ *                     results.append((<bytes>it.key().data())[:it.key().size()])
  */
         goto __pyx_L6_continue;
 
@@ -6628,7 +6623,7 @@ static PyObject *__pyx_pf_9quipubase_5Quipu_20scan_docs(struct __pyx_obj_9quipub
  *                     it.Next()
  *                     continue
  *                 if keys_only:             # <<<<<<<<<<<<<<
- *                     results.append((<bytes>it.key().data())[:it.key().size()]).decode()
+ *                     results.append((<bytes>it.key().data())[:it.key().size()])
  *                 else:
  */
       __pyx_t_2 = (__pyx_v_keys_only != 0);
@@ -6637,107 +6632,79 @@ static PyObject *__pyx_pf_9quipubase_5Quipu_20scan_docs(struct __pyx_obj_9quipub
         /* "quipubase.pyx":152
  *                     continue
  *                 if keys_only:
- *                     results.append((<bytes>it.key().data())[:it.key().size()]).decode()             # <<<<<<<<<<<<<<
+ *                     results.append((<bytes>it.key().data())[:it.key().size()])             # <<<<<<<<<<<<<<
  *                 else:
  *                     results.append(orjson.loads((<bytes>it.value().data())[:it.value().size()]))
  */
-        __pyx_t_5 = __Pyx_PyBytes_FromString(__pyx_v_it->key().data()); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 152, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_5);
-        if (unlikely(__pyx_t_5 == Py_None)) {
+        __pyx_t_1 = __Pyx_PyBytes_FromString(__pyx_v_it->key().data()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 152, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        if (unlikely(__pyx_t_1 == Py_None)) {
           PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
           __PYX_ERR(0, 152, __pyx_L4_error)
         }
-        __pyx_t_6 = PySequence_GetSlice(((PyObject*)__pyx_t_5), 0, __pyx_v_it->key().size()); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 152, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_6);
-        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __pyx_t_7 = __Pyx_PyList_Append(__pyx_v_results, __pyx_t_6); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(0, 152, __pyx_L4_error)
-        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-        __pyx_t_6 = __Pyx_Owned_Py_None(__pyx_t_7); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 152, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_decode); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 152, __pyx_L4_error)
+        __pyx_t_5 = PySequence_GetSlice(((PyObject*)__pyx_t_1), 0, __pyx_v_it->key().size()); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 152, __pyx_L4_error)
         __Pyx_GOTREF(__pyx_t_5);
-        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-        __pyx_t_6 = NULL;
-        __pyx_t_8 = 0;
-        #if CYTHON_UNPACK_METHODS
-        if (likely(PyMethod_Check(__pyx_t_5))) {
-          __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_5);
-          if (likely(__pyx_t_6)) {
-            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_5);
-            __Pyx_INCREF(__pyx_t_6);
-            __Pyx_INCREF(function);
-            __Pyx_DECREF_SET(__pyx_t_5, function);
-            __pyx_t_8 = 1;
-          }
-        }
-        #endif
-        {
-          PyObject *__pyx_callargs[2] = {__pyx_t_6, NULL};
-          __pyx_t_1 = __Pyx_PyObject_FastCall(__pyx_t_5, __pyx_callargs+1-__pyx_t_8, 0+__pyx_t_8);
-          __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-          if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 152, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_1);
-          __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        }
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __pyx_t_6 = __Pyx_PyList_Append(__pyx_v_results, __pyx_t_5); if (unlikely(__pyx_t_6 == ((int)-1))) __PYX_ERR(0, 152, __pyx_L4_error)
+        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
         /* "quipubase.pyx":151
  *                     it.Next()
  *                     continue
  *                 if keys_only:             # <<<<<<<<<<<<<<
- *                     results.append((<bytes>it.key().data())[:it.key().size()]).decode()
+ *                     results.append((<bytes>it.key().data())[:it.key().size()])
  *                 else:
  */
         goto __pyx_L11;
       }
 
       /* "quipubase.pyx":154
- *                     results.append((<bytes>it.key().data())[:it.key().size()]).decode()
+ *                     results.append((<bytes>it.key().data())[:it.key().size()])
  *                 else:
  *                     results.append(orjson.loads((<bytes>it.value().data())[:it.value().size()]))             # <<<<<<<<<<<<<<
  *                 it.Next()
  *         finally:
  */
       /*else*/ {
-        __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_orjson); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 154, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_loads); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 154, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_6);
-        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __pyx_t_5 = __Pyx_PyBytes_FromString(__pyx_v_it->value().data()); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 154, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_5);
-        if (unlikely(__pyx_t_5 == Py_None)) {
+        __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_orjson); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 154, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_loads); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 154, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_7);
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __pyx_t_1 = __Pyx_PyBytes_FromString(__pyx_v_it->value().data()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 154, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        if (unlikely(__pyx_t_1 == Py_None)) {
           PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
           __PYX_ERR(0, 154, __pyx_L4_error)
         }
-        __pyx_t_9 = PySequence_GetSlice(((PyObject*)__pyx_t_5), 0, __pyx_v_it->value().size()); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 154, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_9);
-        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __pyx_t_5 = NULL;
-        __pyx_t_8 = 0;
+        __pyx_t_8 = PySequence_GetSlice(((PyObject*)__pyx_t_1), 0, __pyx_v_it->value().size()); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 154, __pyx_L4_error)
+        __Pyx_GOTREF(__pyx_t_8);
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __pyx_t_1 = NULL;
+        __pyx_t_9 = 0;
         #if CYTHON_UNPACK_METHODS
-        if (unlikely(PyMethod_Check(__pyx_t_6))) {
-          __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_6);
-          if (likely(__pyx_t_5)) {
-            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_6);
-            __Pyx_INCREF(__pyx_t_5);
+        if (unlikely(PyMethod_Check(__pyx_t_7))) {
+          __pyx_t_1 = PyMethod_GET_SELF(__pyx_t_7);
+          if (likely(__pyx_t_1)) {
+            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_7);
+            __Pyx_INCREF(__pyx_t_1);
             __Pyx_INCREF(function);
-            __Pyx_DECREF_SET(__pyx_t_6, function);
-            __pyx_t_8 = 1;
+            __Pyx_DECREF_SET(__pyx_t_7, function);
+            __pyx_t_9 = 1;
           }
         }
         #endif
         {
-          PyObject *__pyx_callargs[2] = {__pyx_t_5, __pyx_t_9};
-          __pyx_t_1 = __Pyx_PyObject_FastCall(__pyx_t_6, __pyx_callargs+1-__pyx_t_8, 1+__pyx_t_8);
-          __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-          __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-          if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 154, __pyx_L4_error)
-          __Pyx_GOTREF(__pyx_t_1);
-          __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+          PyObject *__pyx_callargs[2] = {__pyx_t_1, __pyx_t_8};
+          __pyx_t_5 = __Pyx_PyObject_FastCall(__pyx_t_7, __pyx_callargs+1-__pyx_t_9, 1+__pyx_t_9);
+          __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+          __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+          if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 154, __pyx_L4_error)
+          __Pyx_GOTREF(__pyx_t_5);
+          __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
         }
-        __pyx_t_7 = __Pyx_PyList_Append(__pyx_v_results, __pyx_t_1); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(0, 154, __pyx_L4_error)
-        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __pyx_t_6 = __Pyx_PyList_Append(__pyx_v_results, __pyx_t_5); if (unlikely(__pyx_t_6 == ((int)-1))) __PYX_ERR(0, 154, __pyx_L4_error)
+        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       }
       __pyx_L11:;
 
@@ -6783,8 +6750,8 @@ static PyObject *__pyx_pf_9quipubase_5Quipu_20scan_docs(struct __pyx_obj_9quipub
       __pyx_t_10 = 0; __pyx_t_11 = 0; __pyx_t_12 = 0; __pyx_t_13 = 0; __pyx_t_14 = 0; __pyx_t_15 = 0;
       __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
+      __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
+      __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
       if (PY_MAJOR_VERSION >= 3) __Pyx_ExceptionSwap(&__pyx_t_13, &__pyx_t_14, &__pyx_t_15);
       if ((PY_MAJOR_VERSION < 3) || unlikely(__Pyx_GetException(&__pyx_t_10, &__pyx_t_11, &__pyx_t_12) < 0)) __Pyx_ErrFetch(&__pyx_t_10, &__pyx_t_11, &__pyx_t_12);
       __Pyx_XGOTREF(__pyx_t_10);
@@ -6843,8 +6810,8 @@ static PyObject *__pyx_pf_9quipubase_5Quipu_20scan_docs(struct __pyx_obj_9quipub
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_XDECREF(__pyx_t_9);
+  __Pyx_XDECREF(__pyx_t_7);
+  __Pyx_XDECREF(__pyx_t_8);
   __Pyx_AddTraceback("quipubase.Quipu.scan_docs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
@@ -8280,7 +8247,6 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
     {&__pyx_n_s_count, __pyx_k_count, sizeof(__pyx_k_count), 0, 0, 1, 1},
     {&__pyx_n_s_db_path, __pyx_k_db_path, sizeof(__pyx_k_db_path), 0, 0, 1, 1},
     {&__pyx_kp_s_db_path_must_be_provided, __pyx_k_db_path_must_be_provided, sizeof(__pyx_k_db_path_must_be_provided), 0, 0, 1, 0},
-    {&__pyx_n_s_decode, __pyx_k_decode, sizeof(__pyx_k_decode), 0, 0, 1, 1},
     {&__pyx_n_s_delete, __pyx_k_delete, sizeof(__pyx_k_delete), 0, 0, 1, 1},
     {&__pyx_n_s_delete_doc, __pyx_k_delete_doc, sizeof(__pyx_k_delete_doc), 0, 0, 1, 1},
     {&__pyx_kp_u_disable, __pyx_k_disable, sizeof(__pyx_k_disable), 0, 1, 0, 0},

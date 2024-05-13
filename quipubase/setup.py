@@ -4,8 +4,8 @@ from setuptools import Extension, setup
 
 ext_modules = [
     Extension(
-        "qbase",
-        sources=["qbase.pyx"],
+        "quipubase",
+        sources=["quipubase.pyx"],
         include_dirs=["/usr/local/include"],
         library_dirs=["/usr/local/lib"],
         libraries=["rocksdb"],

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 from abc import ABC, abstractmethod
-from typing import Any, ClassVar, List, Literal, Optional, TypeAlias, TypeVar
+from typing import Any, ClassVar, List, Literal, Optional, TypeVar
 from uuid import uuid4
 
 import numpy as np
@@ -10,10 +10,8 @@ from numpy.typing import NDArray
 from pydantic import BaseModel, Field
 from typing_extensions import ParamSpec, Self, TypedDict
 
-from .qbase import Quipu  # pylint: disable=E0611
+from .quipubase import Quipu  # pylint: disable=E0611
 from .qutils import handle
-
-Property: TypeAlias = dict[str, object]
 
 A = TypeVar("A")
 P = ParamSpec("P")
@@ -33,16 +31,23 @@ class Status(_Base):
     key: Optional[str] = Field(default=None)
 
 
+class Property(TypedDict):
+    type: str
+    description: Optional[str]
+    default: Optional[Any]
+    enum: Optional[List[str]]
+    items: Optional[Property]
+    properties: Optional[Property]
+    required: Optional[List[str]]
+    additionalProperties: Optional[bool]
+
+
 class Function(TypedDict):
     name: str
+    type: Literal["function"]
     description: str
-    properties: Property
-    required: List[str]
-
-
-class ToolDefinition(_Base):
-    type: Literal["tool"] = Field(default="tool")
-    function: Function
+    arguments: Property
+    required: Optional[List[str]]
 
 
 T = TypeVar("T", bound="QDocument")
@@ -118,13 +123,12 @@ class QDocument(_Base):
 class Tool(_Base, ABC):
     @classmethod
     def definition(cls):
-        return ToolDefinition(
-            function=Function(
-                name=cls.__name__,
-                description=cls.__doc__ or "[No description provided]",
-                properties=cls.model_json_schema().get("properties", {}),
-                required=list(cls.model_json_schema().get("required", [])),
-            )
+        return Function(
+            name=cls.__name__,
+            type="function",
+            description=cls.__doc__ or "[No description provided]",
+            arguments=cls.model_json_schema().get("properties", {}),
+            required=list(cls.model_json_schema().get("required", [])),
         )
 
     @abstractmethod

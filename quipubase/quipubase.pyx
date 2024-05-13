@@ -7,11 +7,6 @@ import orjson
 from libcpp cimport bool
 from libcpp.string cimport string
 
-from cython.operator import dereference as deref
-
-from .qproxy import QProxy
-from .qutils import asyncify, handle
-
 T = TypeVar("T")
 P = ParamSpec("P")
 
@@ -154,14 +149,13 @@ cdef class Quipu:
                     it.Next()
                     continue
                 if keys_only:
-                    results.append((<bytes>it.key().data())[:it.key().size()])
+                    results.append((<bytes>it.key().data())[:it.key().size()]).decode()
                 else:
-                    results.append(((<bytes>it.key().data())[:it.key().size()], (<bytes>it.value().data())[:it.value().size()]))
+                    results.append(orjson.loads((<bytes>it.value().data())[:it.value().size()]))
                 it.Next()
         finally:
             del it
             return results
-
       
     def find_docs(self,  int limit, int offset, dict[str,Any] kwargs):
         cdef list results = []

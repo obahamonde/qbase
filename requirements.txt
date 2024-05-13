@@ -5,3 +5,4 @@ orjson
 numpy
 hnswlib
 httpx
+setuptools

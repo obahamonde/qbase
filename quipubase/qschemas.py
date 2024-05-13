@@ -69,13 +69,18 @@ def cast_to_type(schema: Dict[str, Any]) -> Any:
     return Any
 
 
-def create_model_from_json_schema(schema: JsonSchema) -> Type[QDocument]:
+def create_model_from_json_schema(
+    schema: JsonSchema, partial: bool = False
+) -> Type[QDocument]:
     name = schema.get("title", "Model")
     properties = schema.get("properties", {})
     attributes: Dict[str, Any] = {}
-    for key, value in properties.items():
-        attributes[key] = (cast_to_type(value), ...)  # type: ignore
-
+    if not partial:
+        for key, value in properties.items():
+            attributes[key] = (cast_to_type(value), ...)  # type: ignore
+    else:
+        for key, value in properties.items():
+            attributes[key] = (Optional[cast_to_type(value)], None)  # type: ignore
     return create_model(name, __base__=QDocument, **attributes)  # type: ignore
 
 

@@ -1,6 +1,6 @@
 # Quipubase: An Ancestral Approach to Efficient Data Management
 
-
+![QuipuBase Logo](favicon.svg)
 
 ## Why QuipuBase?
 

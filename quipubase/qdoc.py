@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import os
 from abc import ABC, abstractmethod
 from typing import Any, ClassVar, Dict, List, Optional, TypeVar
@@ -12,7 +11,7 @@ from pydantic import BaseModel, Field
 from typing_extensions import Self
 
 from .qconst import DEF_EXAMPLES, EXAMPLES, JSON_SCHEMA_DESCRIPTION, Action
-from .qschemas import JsonSchema, create_class
+from .qschemas import JsonSchema, create_class, synth
 from .quipubase import Quipu  # pylint: disable=E0611
 from .qutils import handle
 
@@ -112,7 +111,6 @@ class QDocument(_Base):
     def exists(cls, *, key: str) -> bool:
         return cls._db.exists(key=key)
 
-
 class Embedding(QDocument, ABC):
     @abstractmethod
     async def embed(self, *, content: str) -> NDArray[Any]:
@@ -135,7 +133,7 @@ app = APIRouter(tags=["document"], prefix="/document")
 
 
 @app.post("/{namespace}")
-def _(
+async def _(
     namespace: str = Path(description="The namespace of the document"),
     action: Action = Query(..., description="The method to be executed"),
     key: Optional[str] = Query(
@@ -149,7 +147,7 @@ def _(
 ):
 
     klass = create_class(schema=definition.definition, base=QDocument, action=action)
-    if action in ("putDoc", "mergeDoc", "findDocs"):
+    if action in ("putDoc", "mergeDoc", "findDocs", "synthDocs"):
         assert (
             definition.data is not None
         ), f"Data must be provided for action `{action}`"
@@ -166,6 +164,7 @@ def _(
                 namespace=namespace,
                 **definition.data,
             )
+        
     if action in ("getDoc", "deleteDoc", "scanDocs", "countDocs", "existsDoc"):
         assert key is not None, f"Key must be provided for action `{action}`"
         if definition.data is not None:
@@ -188,6 +187,10 @@ def _(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Invalid action `{action}`",
             )
+    if action == "synthDocs":
+        if limit is None:
+            limit = 50
+        return await synth(n=limit,schema=definition.definition) # type: ignore
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

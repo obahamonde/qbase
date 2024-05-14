@@ -18,6 +18,7 @@ openai = "^1.28.2"
 pyppeteer = "^2.0.0"
 bs4 = "^0.0.2"
 lxml = "^5.2.2"
+python-dotenv = "^1.0.1"
 
 
 [tool.poetry.dev-dependencies]

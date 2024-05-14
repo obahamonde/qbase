@@ -1,16 +1,14 @@
 import asyncio
 import re
 from abc import ABC, abstractmethod
-from typing import Any, Literal
+from typing import Any
 
 from bs4 import BeautifulSoup  # pylint: disable=E0401
 from fastapi import APIRouter
-from openai import AsyncOpenAI
 from pydantic import BaseModel, Field
-from pyppeteer import browser, launch # type: ignore
-from typing_extensions import  TypedDict
-from .qutils import get_logger
+from pyppeteer import browser, launch  # type: ignore
 
+from .qutils import get_logger
 
 logger = get_logger(__name__)
 
@@ -98,13 +96,4 @@ app = APIRouter(prefix="/tools", tags=["tools"])
 
 @app.post("/search")
 async def search(q:str): # type: ignore
-	return await  BrowsingTool(inputs=q).run()
-
-
-
-ai = AsyncOpenAI()
-
-class Message(TypedDict):
-	role: Literal["system", "user","assistant"]
-	content: str
-
+    return await BrowsingTool(inputs=q).run()

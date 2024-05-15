@@ -2,11 +2,16 @@ import asyncio
 import re
 import json
 from abc import ABC, abstractmethod
+<<<<<<< HEAD
 from typing import Any, Literal, Optional, Dict
+=======
+from typing import Any
+>>>>>>> 706ad16d86b3580c5b84ebab798d188e4115f1cd
 
 from bs4 import BeautifulSoup  # pylint: disable=E0401
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
+<<<<<<< HEAD
 from openai import AsyncOpenAI
 from openai.types.chat.completion_create_params import Function
 from pyppeteer import browser, launch # type: ignore
@@ -14,6 +19,12 @@ from typing_extensions import TypedDict
 from .qutils import get_logger
 
 ai = AsyncOpenAI()
+=======
+from pyppeteer import browser, launch  # type: ignore
+
+from .qutils import get_logger
+
+>>>>>>> 706ad16d86b3580c5b84ebab798d188e4115f1cd
 logger = get_logger(__name__)
 
 class Property(TypedDict,total=False):
@@ -129,9 +140,13 @@ app = APIRouter(prefix="/tools", tags=["tools"])
 
 @app.get("/search")
 async def search(q:str): # type: ignore
+<<<<<<< HEAD
     """If ChatGPT is asked a question that is not in his dataset, or hapenned on a date beyond 2023 it will use this endpoint to search for the answer on the web."""
     return await  BrowsingTool(inputs=q).run()
 
 
 
 
+=======
+    return await BrowsingTool(inputs=q).run()
+>>>>>>> 706ad16d86b3580c5b84ebab798d188e4115f1cd

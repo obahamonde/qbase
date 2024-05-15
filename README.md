@@ -1,5 +1,7 @@
 # Quipubase: An Ancestral Approach to Efficient Data Management
 
+![QuipuBase Logo](favicon.svg)
+
 ## Why QuipuBase?
 
 QuipuBase is an innovative document database that combines the power of modern technologies to deliver an efficient and reliable solution for storing and retrieving data. Inspired by the ancient quipu system, a form of data storage and communication using intricate knot patterns, QuipuBase adopts a similar approach to organize and manage information.

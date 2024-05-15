@@ -61,6 +61,5 @@ Action: TypeAlias = Literal[
     "findDocs",
     "scanDocs",
     "countDocs",
-    "existsDoc",
-    "synthDocs",
+    "existsDoc"
 ]

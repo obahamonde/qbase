@@ -1,24 +1,44 @@
 import asyncio
 import re
+import json
 from abc import ABC, abstractmethod
-from typing import Any, Literal
+from typing import Any, Literal, Optional, Dict
 
 from bs4 import BeautifulSoup  # pylint: disable=E0401
 from fastapi import APIRouter
-from openai import AsyncOpenAI
 from pydantic import BaseModel, Field
+from openai import AsyncOpenAI
+from openai.types.chat.completion_create_params import Function
 from pyppeteer import browser, launch # type: ignore
-from typing_extensions import  TypedDict
+from typing_extensions import TypedDict
 from .qutils import get_logger
 
-
+ai = AsyncOpenAI()
 logger = get_logger(__name__)
 
+class Property(TypedDict,total=False):
+    type: str
+    
+
+
+class JsonSchemaGenerator(BaseModel):
+    """
+	A JSON schema generator that can be used to generate JSON schema from a given example.
+    """
+    title: str = Field(..., description="The name of the entity.")
+    description: Optional[str] = Field(None, description="The description of the entity.")
+    type: Literal["object"] = Field("object", description="The type of the entity.")
+    properties: Dict[str, Property] = Field(..., description="The properties of the entity.")
 
 class Tool(BaseModel, ABC):
 	@classmethod
 	def definition(cls):
-		return
+		_schema = cls.model_json_schema()
+		return Function(
+			name=cls.__name__,
+			parameters=_schema,
+			description=cls.__doc__ or "[No description available]",
+		)
 
 	@abstractmethod
 	async def run(self, **kwargs: Any) -> Any:
@@ -94,17 +114,24 @@ class BrowsingTool(Tool):
 			await page.close()  # type: ignore
 
 
+# class JSONSchemaTool(Tool):
+# 	"""A tool that generates JSON schema from a given example."""
+
+# 	prompt: str = Field(..., description="The prompt to generate JSON schema from.")
+# 	json_schema:Optional[JsonSchemaGenerator] = Field(default=None, description="The JSON schema to generate")
+ 
+# 	async def run(self, **kwargs: Any)
+		
+
+
+
 app = APIRouter(prefix="/tools", tags=["tools"])
 
-@app.post("/search")
+@app.get("/search")
 async def search(q:str): # type: ignore
-	return await  BrowsingTool(inputs=q).run()
+    """If ChatGPT is asked a question that is not in his dataset, or hapenned on a date beyond 2023 it will use this endpoint to search for the answer on the web."""
+    return await  BrowsingTool(inputs=q).run()
 
 
 
-ai = AsyncOpenAI()
-
-class Message(TypedDict):
-	role: Literal["system", "user","assistant"]
-	content: str
 

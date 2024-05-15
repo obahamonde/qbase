@@ -5,6 +5,8 @@ from httpx import AsyncClient
 
 from .qproxy import QProxy
 
+os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
+os.environ["EMBEDDINGS_URL"] = "https://qembeddings-ih27b7zwaa-tl.a.run.app/embeddings"
 EMBEDDINGS_URL = os.environ["EMBEDDINGS_URL"]
 
 

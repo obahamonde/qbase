@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import os
 from abc import ABC, abstractmethod
 from typing import Any, ClassVar, Dict, List, Optional, TypeVar
@@ -11,7 +12,7 @@ from pydantic import BaseModel, Field
 from typing_extensions import Self
 
 from .qconst import DEF_EXAMPLES, EXAMPLES, JSON_SCHEMA_DESCRIPTION, Action
-from .qschemas import JsonSchema, create_class, synth
+from .qschemas import JsonSchema, create_class
 from .quipubase import Quipu  # pylint: disable=E0611
 from .qutils import handle
 
@@ -145,9 +146,12 @@ async def _(
     offset: Optional[int] = Query(None, description="The number of documents to skip"),
     definition: TypeDef = Body(...),
 ):
+    """
+    Quipubase is a document database, ChatGPT can perform actions over this database to store, retrieve and delete documents provided by the user or generated with the `synth` method.
+    """
 
     klass = create_class(schema=definition.definition, base=QDocument, action=action)
-    if action in ("putDoc", "mergeDoc", "findDocs", "synthDocs"):
+    if action in ("putDoc", "mergeDoc", "findDocs"):
         assert (
             definition.data is not None
         ), f"Data must be provided for action `{action}`"
@@ -164,7 +168,7 @@ async def _(
                 namespace=namespace,
                 **definition.data,
             )
-        
+
     if action in ("getDoc", "deleteDoc", "scanDocs", "countDocs", "existsDoc"):
         assert key is not None, f"Key must be provided for action `{action}`"
         if definition.data is not None:
@@ -187,10 +191,6 @@ async def _(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Invalid action `{action}`",
             )
-    if action == "synthDocs":
-        if limit is None:
-            limit = 50
-        return await synth(n=limit,schema=definition.definition) # type: ignore
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
